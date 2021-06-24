@@ -8,8 +8,17 @@ class MysqlClient:
         self.conn = self.make_db_connection()
 
     def make_db_connection(self):
-        conn = pymysql.connect(**self.db_conf, charset='utf8mb4')
+        conn = pymysql.connect(**self.db_conf, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         return conn
+
+    def select(self, sql, args=None):
+        with self.conn.cursor() as cursor:
+            if args:
+                cursor.execute(sql, args)
+            else:
+                cursor.execute(sql)
+            result = cursor.fetchall()
+        return result
 
     def insert(self, table_name, record):
         columns, values = list(record.keys()), list(record.values())
